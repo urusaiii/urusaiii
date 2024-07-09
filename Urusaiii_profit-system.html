@@ -79,7 +79,7 @@
         .toggle-password {
             position: absolute;
             top: 50%;
-            right: 10px;
+            right: 5px; /* Adjusted right padding */
             transform: translateY(-50%);
             background: none;
             border: none;
@@ -90,6 +90,7 @@
         .toggle-password img {
             width: 20px;
             height: 20px;
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -126,7 +127,7 @@
                     <input type="radio" name="craft" value="metalworking" onclick="proceedToEnergy()"> Metalworking
                 </label>
                 <label>
-                    <input type="radio" name="craft" value="metalshaping" onclick="proceedToEnergy()"> Metal Shaping
+                    <input type="radio" name="craft" value="stoneshaping" onclick="proceedToEnergy()"> Metal Shaping
                 </label>
                 <label>
                     <input type="radio" name="craft" value="winery" onclick="proceedToEnergy()"> Winery
@@ -140,7 +141,7 @@
                 <label id="selected-craft-label"></label>
             </div>
             <div class="form-group">
-                <label>Energy Price (Ksh)</label>
+                <label>Energy Price </label>
                 <input type="number" id="energy-price">
             </div>
             <div class="form-group">
@@ -167,7 +168,10 @@
             </div>
             <div class="form-group">
                 <label>Material Name</label>
-                <select id="mats-name"></select>
+                <input type="text" id="mats-name" list="material-options">
+                <datalist id="material-options">
+                    <!-- Populate options dynamically -->
+                </datalist>
             </div>
             <div class="form-group">
                 <label>Material Price</label>
@@ -261,7 +265,7 @@
 
         function calculateEnergy() {
             const energyPrice = parseInt(document.getElementById('energy-price').value);
-            const energyProduce = parseFloat(document.getElementById('energy-produce').value);
+            const energyProduce = parseInt(document.getElementById('energy-produce').value);
             const energyQuantity = parseInt(document.getElementById('energy-quantity').value);
 
             if (isNaN(energyPrice) || isNaN(energyProduce) || isNaN(energyQuantity)) {
@@ -282,23 +286,24 @@
                 "mining": ["Voidtonium", "Copperite Ore", "Clay Matrix", "Ochrux Matrix", "Gravelglass Matrix", "Bronzenite Ore", "Marbleite Matrix", "Irontite Ore", "Bedrock Matrix", "Adamaxium Ore", "Claricite Matrix", "Unobtainium Ore", "Voidite Matrix"],
                 "petcare": ["Silk Fiber", "Honey", "Egg", "Silk Slug Slime", "Wax", "Seltsam Egg", "Silk Slug Spider", "Queen Bee", "Eggsplosive"]
             };
-            
-            const matsNameSelect = document.getElementById('mats-name');
-            matsNameSelect.innerHTML = "";
-            materialOptions[craftingType].forEach(material => {
-                const option = document.createElement('option');
-                option.value = material;
-                option.textContent = material;
-                matsNameSelect.appendChild(option);
+            const matsNameInput = document.getElementById('mats-name');
+            matsNameInput.value = "";
+            const datalist = document.getElementById('material-options');
+            datalist.innerHTML = "";
+            materialOptions[craftingType].forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                datalist.appendChild(optionElement);
             });
         }
 
         function addMaterial() {
+            const matsName = document.getElementById('mats-name').value;
             const matsPrice = parseInt(document.getElementById('mats-price').value);
             const matsQuantity = parseInt(document.getElementById('mats-quantity').value);
 
-            if (isNaN(matsPrice) || isNaN(matsQuantity)) {
-                alert("Please enter valid numbers.");
+            if (!matsName || isNaN(matsPrice) || isNaN(matsQuantity)) {
+                alert("Please enter valid values.");
                 return;
             }
 
@@ -308,7 +313,7 @@
 
             const materialList = document.getElementById('material-list');
             const listItem = document.createElement('li');
-            listItem.textContent = `Name: ${document.getElementById('mats-name').value}, Price: ${matsPrice}, Quantity: ${matsQuantity}`;
+            listItem.textContent = `Name: ${matsName}, Price: ${matsPrice}, Quantity: ${matsQuantity}`;
             materialList.appendChild(listItem);
         }
 
