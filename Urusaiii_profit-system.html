@@ -8,6 +8,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap');
         body {
             font-family: 'Raleway', sans-serif;
+            background-color: #87CEEB;
             color: #000;
             text-align: center;
             margin: 0;
@@ -17,11 +18,11 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+            background: #fff;
             border-radius: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        h1, h2 {
+        h2 {
             font-size: 1.5em;
             margin-bottom: 20px;
             color: #4CAF50;
@@ -64,16 +65,19 @@
         button:hover {
             background-color: #45a049;
         }
-        .facebook-login-btn {
-            background-color: green;
-            color: white;
+        ul {
+            list-style-type: none;
+            padding: 0;
         }
-        .facebook-login-btn:hover {
-            background-color: light green;
+        ul li {
+            background: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
         }
-        /* Hide toggle password button */
         .toggle-password {
-            display: none;
+            display: none; /* Hide toggle password button */
         }
     </style>
 </head>
@@ -81,14 +85,15 @@
     <div class="container">
         <!-- Login Screen -->
         <div id="login-screen" class="visible">
-            <h1>WELCOME TO CRAFTING PROFIT SYSTEM</h1>
+            <h2>Login</h2>
             <div class="form-group">
-                <input type="text" id="magic-word" placeholder="Enter Magic Word" autocomplete="off">
+                <label for="magic-word">Magic Word</label>
+                <input type="text" id="magic-word">
             </div>
-            <button class="facebook-login-btn" onclick="login()">Enter</button>
+            <button onclick="login()">Login</button>
         </div>
 
-        <!-- Start Screen (Hidden for initial login) -->
+        <!-- Start Screen -->
         <div id="start-screen" class="hidden">
             <h2>Select Crafting Type</h2>
             <div class="form-group">
@@ -102,23 +107,21 @@
                     <input type="radio" name="craft" value="metalworking" onclick="proceedToEnergy()"> Metalworking
                 </label>
                 <label>
-                    <input type="radio" name="craft" value="stoneshaping" onclick="proceedToEnergy()"> Metal Shaping
+                    <input type="radio" name="craft" value="metalshaping" onclick="proceedToEnergy()"> Stone Shaping
                 </label>
                 <label>
                     <input type="radio" name="craft" value="winery" onclick="proceedToEnergy()"> Winery
                 </label>
             </div>
-            <button onclick="goBack('login-screen')">Back</button>
         </div>
 
-        <!-- Energy Phase -->
         <div id="energy-phase" class="hidden">
             <h2>Energy Phase</h2>
             <div class="form-group">
                 <label id="selected-craft-label"></label>
             </div>
             <div class="form-group">
-                <label>Energy Price</label>
+                <label>Energy Price </label>
                 <input type="number" id="energy-price">
             </div>
             <div class="form-group">
@@ -130,10 +133,8 @@
                 <input type="number" id="energy-quantity">
             </div>
             <button onclick="calculateEnergy()">Next</button>
-            <button onclick="goBack('start-screen')">Back</button>
         </div>
 
-        <!-- Crafting Phase -->
         <div id="crafting-phase" class="hidden">
             <h2>Crafting Phase</h2>
             <div class="form-group">
@@ -167,10 +168,8 @@
                 <input type="number" id="energy-consumption">
             </div>
             <button onclick="finishMaterials()">Finish Materials</button>
-            <button onclick="goBack('energy-phase')">Back</button>
         </div>
 
-        <!-- Sales Phase -->
         <div id="sales-phase" class="hidden">
             <h2>Sales Phase</h2>
             <div class="form-group">
@@ -191,7 +190,6 @@
                 <span id="profit"></span>
             </div>
             <button onclick="resetAll()">Reset</button>
-            <button onclick="goBack('crafting-phase')">Back</button>
         </div>
     </div>
 
@@ -203,15 +201,15 @@
         let totalCapitalVal = 0;
         let selectedCraft = "";
 
-        const validMagicWord = "example"; // Replace with your actual magic word
+        const validMagicWord = "magic";
 
         function login() {
             const magicWord = document.getElementById('magic-word').value;
+
             if (magicWord === validMagicWord) {
                 switchFrame('start-screen');
-                document.getElementById('login-screen').style.display = 'none';
             } else {
-                alert("Incorrect magic word. Please try again.");
+                alert("Incorrect magic word.");
             }
         }
 
@@ -223,29 +221,30 @@
         }
 
         function proceedToEnergy() {
-            const selectedOption = document.querySelector('input[name="craft"]:checked');
-            if (selectedOption) {
-                selectedCraft = selectedOption.value;
-                document.getElementById('selected-craft-label').innerText = "Selected Craft: " + selectedCraft;
-                switchFrame('energy-phase');
-            } else {
+            const selectedRadio = document.querySelector('input[name="craft"]:checked');
+            if (!selectedRadio) {
                 alert("Please select a crafting type.");
+                return;
             }
+            selectedCraft = selectedRadio.value;
+            document.getElementById('selected-craft-label').textContent = `So you chose ${selectedCraft}`;
+            updateBackgroundColor(selectedCraft);
+            switchFrame('energy-phase');
         }
 
         function calculateEnergy() {
-            const energyPrice = parseFloat(document.getElementById('energy-price').value);
-            const energyProduce = parseFloat(document.getElementById('energy-produce').value);
-            const energyQuantity = parseFloat(document.getElementById('energy-quantity').value);
+            const energyPrice = parseInt(document.getElementById('energy-price').value);
+            const energyProduce = parseInt(document.getElementById('energy-produce').value);
+            const energyQuantity = parseInt(document.getElementById('energy-quantity').value);
 
             if (isNaN(energyPrice) || isNaN(energyProduce) || isNaN(energyQuantity)) {
-                alert("Please fill in all energy fields.");
+                alert("Please enter valid numbers.");
                 return;
             }
 
-            totalEnergy = (energyProduce * energyQuantity);
-            currentCapital = (energyPrice * energyQuantity);
-            totalSum = currentCapital;
+            totalEnergy = energyProduce * energyQuantity;
+            currentCapital = energyPrice * energyQuantity;
+
             switchFrame('crafting-phase');
         }
 
@@ -256,10 +255,11 @@
                 "mining": ["Voidtonium", "Copperite Ore", "Clay Matrix", "Ochrux Matrix", "Gravelglass Matrix", "Bronzenite Ore", "Marbleite Matrix", "Irontite Ore", "Bedrock Matrix", "Adamaxium Ore", "Claricite Matrix", "Unobtainium Ore", "Voidite Matrix"],
                 "petcare": ["Silk Fiber", "Honey", "Egg", "Silk Slug Slime", "Wax", "Seltsam Egg", "Silk Slug Spider", "Queen Bee", "Eggsplosive"]
             };
-            const options = materialOptions[craftingType];
+            const matsNameInput = document.getElementById('mats-name');
+            matsNameInput.value = "";
             const datalist = document.getElementById('material-options');
             datalist.innerHTML = "";
-            options.forEach(option => {
+            materialOptions[craftingType].forEach(option => {
                 const optionElement = document.createElement('option');
                 optionElement.value = option;
                 datalist.appendChild(optionElement);
@@ -268,82 +268,91 @@
 
         function addMaterial() {
             const matsName = document.getElementById('mats-name').value;
-            const matsPrice = parseFloat(document.getElementById('mats-price').value);
-            const matsQuantity = parseFloat(document.getElementById('mats-quantity').value);
+            const matsPrice = parseInt(document.getElementById('mats-price').value);
+            const matsQuantity = parseInt(document.getElementById('mats-quantity').value);
 
             if (!matsName || isNaN(matsPrice) || isNaN(matsQuantity)) {
-                alert("Please fill in all material fields.");
+                alert("Please enter valid values.");
                 return;
             }
 
+            const materialCost = matsPrice * matsQuantity;
+            totalSum = materialCost;
+            currentCapital += materialCost;
+
             const materialList = document.getElementById('material-list');
             const listItem = document.createElement('li');
-            listItem.textContent = `Material: ${matsName}, Price: ${matsPrice}, Quantity: ${matsQuantity}`;
+            listItem.textContent = `Name: ${matsName}, Price: ${matsPrice}, Quantity: ${matsQuantity}`;
             materialList.appendChild(listItem);
-
-            const materialCost = matsPrice * matsQuantity;
-            totalSum += materialCost;
-            totalCrafts += matsQuantity;
         }
 
         function finishMaterials() {
             const energyConsumption = parseFloat(document.getElementById('energy-consumption').value);
 
             if (isNaN(energyConsumption)) {
-                alert("Please fill in the energy consumption field.");
+                alert("Please enter valid numbers.");
                 return;
             }
 
-            totalSum += (energyConsumption * totalEnergy);
-            totalCapitalVal = totalSum;
+            const totalMaterials = Math.round(totalEnergy / energyConsumption);
+            totalCrafts = totalMaterials;
+            totalCapitalVal = totalSum * totalMaterials + currentCapital;
+
+            alert(`Total Capital: ${totalCapitalVal}\nTotal Energy: ${totalEnergy}\nTotal Crafts: ${totalMaterials}`);
             switchFrame('sales-phase');
         }
 
         function calculateProfit() {
-            const sellPrice = parseFloat(document.getElementById('sell-price').value);
-            const taxPercentage = parseFloat(document.getElementById('tax-percentage').value);
+            const sellPrice = parseInt(document.getElementById('sell-price').value);
+            const taxPercentage = parseInt(document.getElementById('tax-percentage').value);
 
             if (isNaN(sellPrice) || isNaN(taxPercentage)) {
-                alert("Please fill in all sales fields.");
+                alert("Please enter valid numbers.");
                 return;
             }
 
-            const totalSales = sellPrice * totalCrafts;
-            const profit = totalSales - totalCapitalVal - (taxPercentage / 100) * totalSales;
+            const saleAmount = sellPrice * totalCrafts;
+            const tax = taxPercentage / 100;
+            const afterTax = saleAmount * (1 - tax);
+            const profit = afterTax - totalCapitalVal;
 
-            document.getElementById('total-sales').textContent = totalSales.toFixed(2);
-            document.getElementById('profit').textContent = profit.toFixed(2);
+            document.getElementById('total-sales').textContent = saleAmount;
+            document.getElementById('profit').textContent = profit;
         }
 
         function resetAll() {
-            switchFrame('start-screen');
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('energy-price').value = "";
+            document.getElementById('energy-produce').value = "";
+            document.getElementById('energy-quantity').value = "";
+
+            document.getElementById('mats-price').value = "";
+            document.getElementById('mats-quantity').value = "";
+
             totalSum = 0;
             totalEnergy = 0.0;
             currentCapital = 0;
             totalCrafts = 0;
             totalCapitalVal = 0;
-            selectedCraft = "";
-            document.getElementById('magic-word').value = "";
-            document.getElementById('material-list').innerHTML = "";
-            document.getElementById('total-sales').textContent = "";
-            document.getElementById('profit').textContent = "";
+
+            const materialList = document.getElementById('material-list');
+            while (materialList.firstChild) {
+                materialList.removeChild(materialList.firstChild);
+            }
+
+            switchFrame('start-screen');
         }
 
-        function goBack(screen) {
-            switch (screen) {
-                case 'start-screen':
-                    switchFrame('start-screen');
-                    break;
-                case 'energy-phase':
-                    switchFrame('energy-phase');
-                    break;
-                case 'crafting-phase':
-                    switchFrame('crafting-phase');
-                    break;
-            }
+        function updateBackgroundColor(selectedCraft) {
+            const backgroundColors = {
+                "cooking": "#FFFFE0",
+                "woodworking": "#D3D3D3",
+                "metalworking": "#DAA520",
+                "winery": "#90EE90",
+                "metalshaping": "#FFA500"
+            };
+            document.body.style.backgroundColor = backgroundColors[selectedCraft] || "#87CEEB";
         }
     </script>
 </body>
 </html>
+
